@@ -28,14 +28,27 @@ public class GenerateAst {
 
         PrintWriter writer = new PrintWriter(path, "UTF-8");
 
+        // Imports
         writer.println("package lox;");
         writer.println();
         writer.println("import java.util.List;");
         writer.println();
+
+        // Class Definition
         writer.println("abstract class " + baseName + "{");
         writer.println();
 
+        // Visitor interface
+        defineVisitor(writer, baseName, types);
+        writer.println();
+
+        // Base accept() class for visitor pattern
+        writer.println(addTab(1) + "abstract <R> R accept(Visitor<R> visitor);");
+        writer.println();
+
+        // Individual Type Classes
         for(String type : types){
+            // Type definition
             String className = type.split(":")[0].trim();
             String fields = type.split(":")[1].trim();
             defineType(writer, baseName, className, fields);
@@ -44,6 +57,18 @@ public class GenerateAst {
 
         writer.println("}");
         writer.close();
+    }
+    
+    private static void defineVisitor(PrintWriter writer, String baseName, List<String> types){
+        writer.println(addTab(1) + "interface Visitor<R> {");
+
+        for(String type:types){
+            String typeName = type.split(":")[0].trim();
+            // R visitLiteralExpr(Literal expr);
+            writer.println(addTab(2) + "R visit" + typeName + baseName + "(" + typeName + " " + baseName.toLowerCase()+");");
+        }
+
+        writer.println(addTab(1) + "}");
     }
 
     private static void defineType(PrintWriter writer, String baseName, String className, String fieldList){
@@ -59,6 +84,13 @@ public class GenerateAst {
 
         writer.println();
 
+        // Visitor pattern implementation
+        writer.println(addTab(2)+"@Override");
+        writer.println(addTab(2)+"<R> R accept(Visitor<R> visitor) {");
+        writer.println(addTab(3)+"return visitor.visit" + className + baseName + "(this);");
+        writer.println(addTab(2)+"}");
+        writer.println();
+
         // Fields
         for(String field: fields){
             writer.println(addTab(2) + "final " + field + ";");
@@ -66,6 +98,7 @@ public class GenerateAst {
 
         writer.println(addTab(1) + "}");
     }
+  
 
     private static String addTab(int tabs){
         String tab = "";

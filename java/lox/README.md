@@ -15,6 +15,7 @@ _Compile source code_
 
 _Run program_
 `java -cp bin lox.Lox`
+`java -cp bin lox.AstPrinter`
 
-_To use th generate AST tool_
-`java src/tools/GenerateAst.java "src/lox"`
+_To use the generate AST tool_
+`java src/tools/GenerateAst.java src/lox`
